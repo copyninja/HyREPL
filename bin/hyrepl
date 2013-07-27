@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+from hyrepl.connection import nREPLServerHandler
+
+def main():
+    try:
+        t = nREPLServerHandler("localhost", 9999)
+        t.start()
+    except KeyboardInterrupt:
+        t.stop()
+
+
+if __name__ == '__main__':
+    main()
