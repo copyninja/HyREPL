@@ -52,7 +52,6 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if i.get("status"):
                 if "done" in i["status"]:
                     del self.sessions[i["session"]]
-        print(self.outs)
         self.outs = []
 
     def send_request(self2, self, sess):
@@ -66,9 +65,9 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
         in_data = str(self.request.recv(1024), 'utf-8')
 
+        print(in_data)
         dec_dat = decode(in_data)
         decoded_data = [i for i in dec_dat][0]
-        
         if "session" not in decoded_data:
             sess = str(uuid.uuid4()) 
             self.sessions[sess] = None
