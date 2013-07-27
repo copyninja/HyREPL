@@ -19,26 +19,9 @@ ip = "127.0.0.1"
 port = 9999
 
 
-def run_cmd():
-    p = subprocess.Popen("python bin/hyrepl",
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
-                         shell=True)
-    stdout = ""
-    stderr = ""
-    # Read stdout and stderr otherwise if the PIPE buffer is full, we might
-    # wait for ever…
-    while p.poll() is None:
-        stdout += str(p.stdout.read())
-        stderr += str(p.stderr.read())
-    return p.returncode, stdout, stderr
-
-
-
-def test_cmd():
-    args = run_cmd()
-    print(args)
-
+#p = nREPLServerHandler(ip,port)
+#th = threading.Thread(target=p.start)
+#th.start()
 
 def soc_send(message):
     reply = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,16 +32,38 @@ def soc_send(message):
     while True:
         response = str(reply.recv(2048), 'utf-8')
         if response:
-            l = [i for i in decode(response)]
-            ret.append(l[0])
+            [ret.append(l) for l in decode(response)]
+            print(ret)
+            print(response)
         if "done" in response:
             break
+    reply.close()
+    return ret
 
 def test_code_eval():
     code = {"op": "eval", "code": "(+ 2 2)"}
     ret = soc_send(code)
+    print(ret)
     assert len(ret) == 2
     value, status = ret
     assert value["value"] == '4'
-    assert "done" in status["status"] 
+    assert "done" in status["status"]
+    assert value["session"] == status["session"]
+
+def test_stdout_eval():
+    code = {"op": "eval", "code": '(print "Hello World")'}
+    ret = soc_send(code)
+    print(ret)
+    assert len(ret) == 3
+    value, out, status = ret
+    assert value["value"] == 'None'
+    assert out["out"] == "Hello World\n"
+    assert "done" in status["status"]
+    assert value["session"] == out["session"] == status["session"]
+
+
+# def test_exit():
+#     global th
+#     del th
+#     p.stop()
 

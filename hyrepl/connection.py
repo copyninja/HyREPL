@@ -48,9 +48,11 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         for i in self.outs:
             ret = encode(i)
             self.request.sendall(bytes(ret, 'utf-8'))
+            print(i)
             if i.get("status"):
                 if "done" in i["status"]:
                     del self.sessions[i["session"]]
+        print(self.outs)
         self.outs = []
 
     def send_request(self2, self, sess):
@@ -185,11 +187,8 @@ class nREPLServerHandler(object):
 
     def start(self):
         """Starts the server"""
-        self.server_thread = threading.Thread(target=self.server.serve_forever)
-        self.server_thread.daemon = True
-        self.server_thread.start()
+        self.server.serve_forever()
 
     def stop(self):
         """Stops the server"""
-        del self.server_thread
         self.server.shutdown()
